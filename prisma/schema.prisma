@@ -25,9 +25,7 @@ datasource db {
 model Roles {
   id        Int    @id @default(autoincrement())
   title     String
-  requests  String //create, read, edit, delete, all
-  dashboard String
-  users     String
+  permissions  String //create, read, edit, delete, all
   User      User[]
 }
 
