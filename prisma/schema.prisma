@@ -23,16 +23,17 @@ datasource db {
 //   createdAt DateTime @default(now())
 // }
 model Roles {
-  id        Int    @id @default(autoincrement())
-  title     String
-  permissions  String //create, read, edit, delete, all
-  User      User[]
+  id          Int    @id @default(autoincrement())
+  title       String
+  permissions String //create, read, edit, delete, all
+  User        User[]
 }
 
 model User {
   id                  Int                   @id @default(autoincrement())
   name                String
   email               String
+  password            String
   company             String
   city                String
   state               String
@@ -40,6 +41,7 @@ model User {
   apiKey              String
   apiExpiry           DateTime
   smcAddress          String
+  refreshToken        String
   TransactionRequests TransactionRequests[]
   roleId              Int
   role                Roles                 @relation(fields: [roleId], references: [id])
