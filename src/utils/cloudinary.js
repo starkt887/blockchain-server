@@ -3,7 +3,7 @@ import {
   CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET,
   CLOUDINARY_CLOUD_NAME,
-} from "../constants";
+} from "../constants.js";
 import fs from "fs";
 
 // Configuration

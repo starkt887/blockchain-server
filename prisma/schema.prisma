@@ -22,10 +22,15 @@ datasource db {
 //   value     String?
 //   createdAt DateTime @default(now())
 // }
+
+//create, read, edit, delete
+//syntax <Table_name>-<permission_num_sequence> 
+//e.g. User-0000 (role has no access to users)
+//e.g. User-1111 (role has full access to users)
 model Roles {
   id          Int    @id @default(autoincrement())
   title       String
-  permissions String //create, read, edit, delete, all
+  permissions Int
   User        User[]
 }
 
@@ -35,28 +40,33 @@ model User {
   email               String
   password            String
   company             String
+  logo                String
   city                String
   state               String
   mobile              String
-  apiKey              String
-  apiExpiry           DateTime
-  smcAddress          String
+  apiKey              String //on activating the license
+  apiExpiry           DateTime //on activating the license
+  smcAddress          String //on activating the license
   refreshToken        String
   TransactionRequests TransactionRequests[]
   roleId              Int
   role                Roles                 @relation(fields: [roleId], references: [id])
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
 }
 
 model TransactionRequests {
-  id       Int    @id @default(autoincrement())
-  metadata String
-  status   String
-  txhash   String
-  from     String
-  to       String
-  response String
-  userId   Int
-  user     User   @relation(fields: [userId], references: [id])
+  id        Int      @id @default(autoincrement())
+  metadata  String
+  status    String
+  txhash    String
+  from      String
+  to        String
+  response  String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // model Wallet {
