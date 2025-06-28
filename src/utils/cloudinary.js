@@ -26,6 +26,7 @@ const uploadToCloudinary = async (localFilePath) => {
       quality: "auto",
     });
     console.log(optimizeUrl);
+    fs.unlinkSync(localFilePath); //delete file from local server
     return optimizeUrl;
   } catch (error) {
     console.error("Cloudinary error:", error);

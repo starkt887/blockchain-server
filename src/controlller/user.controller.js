@@ -12,33 +12,54 @@ const registerUser = asyncHandler(async (req, res) => {
   //validate if the user exists
   //validate if the logo is provided
   //insert into db
-  const { name, email, password, company, city, state, mobile } = req.body;
+
+  const {
+    name,
+    email,
+    password,
+    company,
+    country,
+    city,
+    state,
+    zipcode,
+    mobile,
+  } = req.body;
   if (
-    validateEmptyFiealds([name, email, password, company, city, state, mobile])
+    validateEmptyFiealds([
+      name,
+      email,
+      password,
+      company,
+      country,
+      city,
+      zipcode,
+      state,
+      mobile,
+    ])
   ) {
     throw new ApiError(400, "All fields are required!");
   }
+
   if (validateEmail(email)) {
     throw new ApiError(400, "Valid email is required!");
   }
 
-  const isUserRegistered = await DB.user.findUnique({
+  const isUserRegistered = await DB.user.findFirst({
     where: { email: email },
   });
-  console.log(isUserRegistered);
 
   if (isUserRegistered) {
+    console.log(isUserRegistered);
     throw new ApiError(409, "Email already registered!");
   }
 
-  const logoLocalPath = req.files?.logo[0]?.path;
-  if (!logoLocalPath) {
+  if (!req.files?.logo) {
     throw new ApiError(400, "Company logo required!");
   }
-
+  const logoLocalPath = req.files?.logo[0]?.path;
   const logoUrl = await uploadToCloudinary(logoLocalPath);
   if (!logoUrl) {
-    throw new ApiError(400, "Company logo required!");
+    throw new ApiError(400, "Company logo upload failed!");
   }
 
   const encryptedPassword = await encryptPassword(password);
@@ -50,10 +71,16 @@ const registerUser = asyncHandler(async (req, res) => {
       password: encryptedPassword,
       company: company,
       logo: logoUrl,
+      country: country,
       city: city,
       state: state,
       mobile: mobile,
+      zipcode: zipcode,
+      role: {
+        connect: { id: req.role.id },
+      },
     },
+    include: { role: true },
   });
   const createdUser = await DB.user.findUnique({
     where: { id: user.id },

@@ -1,7 +1,8 @@
 const validateEmptyFiealds = (...fields) => {
-  fields.some((field) => field == "");
+//   console.log(fields);
+  return fields.some((field) => field === "");
 };
-const validateEmail=(email)=>{
- return !email.includes("@")||!email.includes(".")
-}
-export { validateEmptyFiealds,validateEmail };
+const validateEmail = (email) => {
+  return !email.includes("@") || !email.includes(".");
+};
+export { validateEmptyFiealds, validateEmail };

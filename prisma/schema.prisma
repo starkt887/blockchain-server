@@ -29,28 +29,30 @@ datasource db {
 //e.g. User-1111 (role has full access to users)
 model Roles {
   id          Int    @id @default(autoincrement())
-  title       String
-  permissions Int
+  title       String @unique
+  permissions String
   User        User[]
 }
 
 model User {
   id                  Int                   @id @default(autoincrement())
   name                String
-  email               String
+  email               String                @unique
   password            String
   company             String
   logo                String
+  country             String
   city                String
+  zipcode             String
   state               String
-  mobile              String
-  apiKey              String //on activating the license
-  apiExpiry           DateTime //on activating the license
-  smcAddress          String //on activating the license
-  refreshToken        String
+  mobile              String                @unique
+  apiKey              String? //on activating the license
+  apiExpiry           DateTime? //on activating the license
+  smcAddress          String? //on activating the license
+  refreshToken        String?
   TransactionRequests TransactionRequests[]
   roleId              Int
-  role                Roles                 @relation(fields: [roleId], references: [id])
+  role                Roles               @relation(fields: [roleId], references: [id])
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
 }
