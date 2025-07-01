@@ -4,7 +4,7 @@ import {
   ACCESS_TOKEN_SECRET_EXPIRY,
   REFRESH_TOKEN_SECRET,
   REFRESH_TOKEN_SECRET_EXPIRY,
-} from "../constants";
+} from "../constants.js";
 const generateAccessToken = (data) => {
   return jwt.sign(data, ACCESS_TOKEN_SECRET, {
     expiresIn: ACCESS_TOKEN_SECRET_EXPIRY,
@@ -16,6 +16,12 @@ const generateRefreshToken = (data) => {
     expiresIn: REFRESH_TOKEN_SECRET_EXPIRY,
   });
 };
+const decodeAccessToken = (token) => {
+  return jwt.verify(token, ACCESS_TOKEN_SECRET);
+};
+const decodeRefreshToken = (token) => {
+  return jwt.verify(token, REFRESH_TOKEN_SECRET);
+};
 // const dataToEncryptInAccessToken = {
 //   id: 123,
 //   email: "something@example.com",
@@ -25,4 +31,4 @@ const generateRefreshToken = (data) => {
 // const dataToEncryptInRefreshToken = {
 //   id: 123,
 // };
-export { generateAccessToken, generateRefreshToken };
+export { generateAccessToken, generateRefreshToken, decodeAccessToken,decodeRefreshToken };
