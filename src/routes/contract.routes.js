@@ -48,5 +48,9 @@ router.post("/generatecertificates", async (req, res) => {
   //     res.status(500).json({ error: 'Error writing to contract' });
   //   }
 });
+//get my requests
+//generate certificate request
+//check certificate request status and if done then send certificate
+//fetch certificate
 
 module.exports = router;

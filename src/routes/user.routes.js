@@ -21,5 +21,11 @@ router.route("/login").post(loginUser)
 //secured routes
 router.route("/logout").post(verifyJWT,logoutUser)
 router.route("/refresh-tokens").post(refreshAccessToken)
-router.route("/change-password",changePassword)
+router.route("/change-password").post(changePassword)
+//update profile
+
+//admin routes
+//get all users
+//get single user data
+
 export default router;
