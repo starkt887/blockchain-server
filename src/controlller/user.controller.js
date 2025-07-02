@@ -230,4 +230,25 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, loginUser, logoutUser,refreshAccessToken };
+const changePassword = asyncHandler(async (req, res) => {
+  const { newPassword, oldPassword, confPassword } = req.body;
+  if (validateEmptyFiealds([newPassword, oldPassword, confPassword])) {
+    throw new ApiError(400, "All fields are required!");
+  }
+  if (newPassword !== confPassword) {
+    throw new ApiError(401, "New password and Confirma password are not same!");
+  }
+  const user = await DB.user.findUnique({ where: { id: req.user.id } });
+  const isPasswordValid = await isPasswordCorrect(password, user.password);
+  if (!isPasswordValid) {
+    throw new ApiError(401, "Invalid old password!");
+  }
+  const encryptedPassword = await encryptPassword(newPassword);
+  const updatedUser = await DB.user.update({
+    where: { id: user.id },
+    data: { password: encryptedPassword },
+  });
+  res.status(200).json(new ApiResponse(200, {}, "Password changed success!"));
+});
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken,changePassword };
