@@ -15,9 +15,11 @@ app.use(cookieParser());
 
 //import routes
 import userRoutes from "./routes/user.routes.js";
+import contractRoutes from "./routes/contract.routes.js"
 import { asyncHandler } from "./utils/asyncHandler.js";
 //initialize routes
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/contract",contractRoutes)
 
 app.get(
   "/servercheck",
