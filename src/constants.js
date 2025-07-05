@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { contractABI } from "./contract/contractABI.js";
+import { certificationContractABI, contractABI } from "./contract/contractABI.js";
 
 export const PORT = process.env.PORT || 8000;
 export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
@@ -14,7 +14,7 @@ export const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
 export const ROLES = { USER: "USER", ADMIN: "ADMIN" };
 
 //BLOCKCHAIN
-export const CONTRACT_ABI = contractABI;
+export const CONTRACT_ABI = certificationContractABI;
 export const PROVIDER = new ethers.JsonRpcProvider(process.env.RPC_URL);
 export const WALLET = new ethers.Wallet(process.env.PRIVATE_KEY, PROVIDER);
 export const CONTRACT = new ethers.Contract(
