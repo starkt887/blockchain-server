@@ -10,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -28,44 +28,45 @@ datasource db {
 //e.g. User-0000 (role has no access to users)
 //e.g. User-1111 (role has full access to users)
 model Roles {
-  id          Int    @id @default(autoincrement())
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
   title       String @unique
   permissions String
   User        User[]
 }
 
 model User {
-  id                  Int                   @id @default(autoincrement())
+  id                  String                @id @default(auto()) @map("_id") @db.ObjectId
   name                String
   email               String                @unique
   password            String
-  company             String
-  logo                String
-  country             String
-  city                String
-  zipcode             String
-  state               String
+  company             String?
+  logo                String?
+  country             String?
+  countryCode         String?
+  city                String?
+  zipcode             String?
+  state               String?
   mobile              String                @unique
   apiKey              String? //on activating the license
   apiExpiry           DateTime? //on activating the license
   smcAddress          String? //on activating the license
   refreshToken        String?
   TransactionRequests TransactionRequests[]
-  roleId              Int
-  role                Roles               @relation(fields: [roleId], references: [id])
+  roleId              String                @db.ObjectId
+  role                Roles                 @relation(fields: [roleId], references: [id])
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
 }
 
 model TransactionRequests {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   metadata  String
   status    String
   txhash    String
   from      String
   to        String
   response  String
-  userId    Int
+  userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

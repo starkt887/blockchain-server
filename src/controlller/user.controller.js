@@ -21,29 +21,9 @@ const registerUser = asyncHandler(async (req, res) => {
   //validate if the logo is provided
   //insert into db
 
-  const {
-    name,
-    email,
-    password,
-    company,
-    country,
-    city,
-    state,
-    zipcode,
-    mobile,
-  } = req.body;
+  const { name, email, mobile, country, countryCode, password } = req.body;
   if (
-    validateEmptyFiealds([
-      name,
-      email,
-      password,
-      company,
-      country,
-      city,
-      zipcode,
-      state,
-      mobile,
-    ])
+    validateEmptyFiealds([name, email, mobile, country, countryCode, password])
   ) {
     throw new ApiError(400, "All fields are required!");
   }
@@ -61,29 +41,15 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "Email already registered!");
   }
 
-  if (!req.files?.logo) {
-    throw new ApiError(400, "Company logo required!");
-  }
-  const logoLocalPath = req.files?.logo[0]?.path;
-  const logoUrl = await uploadToCloudinary(logoLocalPath);
-  if (!logoUrl) {
-    throw new ApiError(400, "Company logo upload failed!");
-  }
-
   const encryptedPassword = await encryptPassword(password);
-
   const user = await DB.user.create({
     data: {
       name: name,
       email: email,
-      password: encryptedPassword,
-      company: company,
-      logo: logoUrl,
-      country: country,
-      city: city,
-      state: state,
       mobile: mobile,
-      zipcode: zipcode,
+      country: country,
+      countryCode: countryCode,
+      password: encryptedPassword,
       role: {
         connect: { id: req.role.id },
       },
@@ -100,7 +66,13 @@ const registerUser = asyncHandler(async (req, res) => {
 
   res
     .status(201)
-    .json(new ApiResponse(201, createdUser, "User registered successfully!"));
+    .json(
+      new ApiResponse(
+        201,
+        { userId: createdUser.id },
+        "User registered successfully!"
+      )
+    );
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -154,12 +126,84 @@ const loginUser = asyncHandler(async (req, res) => {
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(
-      new ApiResponse(200, {
-        accessToken,
-        refreshToken,
-        user: updateUser,
-      })
+      new ApiResponse(
+        200,
+        {
+          accessToken,
+          refreshToken,
+          id: updateUser.id,
+        },
+        "Login successful!"
+      )
     );
+});
+
+const getProfile = asyncHandler(async (req, res) => {
+  //verify jwt
+  //find the user using id
+  const userId = req.user.id;
+  const user = await DB.user.findUnique({
+    where: { id: userId },
+    omit: { refreshToken: true, password: true },
+  });
+  if (!user) {
+    throw new ApiError(401, "Unable to find user profile!");
+  }
+  //response
+  res.status(200).json(new ApiResponse(200, user, "User details are loaded!"));
+});
+const updateProfile = asyncHandler(async (req, res) => {
+  const { name, company, country, countryCode, city, state, zipcode, mobile } =
+    req.body;
+  console.log(req.body);
+
+  const userId = req.user.id;
+  if (
+    validateEmptyFiealds([
+      name,
+      company,
+      country,
+      city,
+      zipcode,
+      state,
+      mobile,
+      countryCode,
+    ])
+  ) {
+    throw new ApiError(400, "All fields are required!");
+  }
+  let logoUrl = undefined;
+  if (req.files && req.files?.logo) {
+    // if (!req.files?.logo) {
+    //   throw new ApiError(400, "Company logo required!");
+    // }
+    console.log("logo available");
+
+    const logoLocalPath = req.files?.logo[0]?.path;
+    logoUrl = await uploadToCloudinary(logoLocalPath);
+    if (!logoUrl) {
+      throw new ApiError(400, "Company logo upload failed!");
+    }
+  }
+
+  const user = await DB.user.update({
+    data: {
+      name: name,
+      company: company,
+      logo: logoUrl && logoUrl,
+      country: country,
+      city: city,
+      state: state,
+      mobile: mobile,
+      zipcode: zipcode,
+    },
+    where: { id: userId },
+    omit: { password: true, refreshToken: true },
+  });
+  if (!user) throw new ApiError(400, "Unabled to update profile detail!");
+  res
+    .status(201)
+    .json(new ApiResponse(201, user, "Profile updated successfully!"));
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
@@ -251,4 +295,12 @@ const changePassword = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, {}, "Password changed success!"));
 });
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken,changePassword };
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  changePassword,
+  getProfile,
+  updateProfile,
+};
