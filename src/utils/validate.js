@@ -8,5 +8,10 @@ const validateEmptyFiealds = (fields) => {
 const validateEmail = (email) => {
   return !email.includes("@") || !email.includes(".");
 };
-export { validateEmptyFiealds, validateEmail };
-validateEmptyFiealds(["", "ramesh2123"]);
+
+const validateIsNumber = (field) => {
+  return !isNaN(Number(field));
+};
+export { validateEmptyFiealds, validateEmail, validateIsNumber };
+// validateEmptyFiealds(["", "ramesh2123"]);
+// validateIsNumber("12sdfsdf")

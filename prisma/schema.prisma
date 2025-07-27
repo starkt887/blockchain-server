@@ -56,6 +56,8 @@ model User {
   role                Roles                 @relation(fields: [roleId], references: [id])
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
+  Quotations          Quotations[]
+  ApiKeys             ApiKeys[]
 }
 
 model TransactionRequests {
@@ -68,6 +70,28 @@ model TransactionRequests {
   response  String
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Quotations {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  quotation Int
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ApiKeys {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  apiKey    String
+  apiSecret String
+  enabled   Boolean
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

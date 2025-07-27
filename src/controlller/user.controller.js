@@ -152,6 +152,7 @@ const getProfile = asyncHandler(async (req, res) => {
   //response
   res.status(200).json(new ApiResponse(200, user, "User details are loaded!"));
 });
+
 const updateProfile = asyncHandler(async (req, res) => {
   const { name, company, country, countryCode, city, state, zipcode, mobile } =
     req.body;
@@ -275,15 +276,15 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 const changePassword = asyncHandler(async (req, res) => {
-  const { newPassword, oldPassword, confPassword } = req.body;
-  if (validateEmptyFiealds([newPassword, oldPassword, confPassword])) {
+  const { newPassword, oldPassword, confirmPassword } = req.body;
+  if (validateEmptyFiealds([newPassword, oldPassword, confirmPassword])) {
     throw new ApiError(400, "All fields are required!");
   }
-  if (newPassword !== confPassword) {
+  if (newPassword !== confirmPassword) {
     throw new ApiError(401, "New password and Confirma password are not same!");
   }
   const user = await DB.user.findUnique({ where: { id: req.user.id } });
-  const isPasswordValid = await isPasswordCorrect(password, user.password);
+  const isPasswordValid = await isPasswordCorrect(oldPassword, user.password);
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid old password!");
   }
@@ -292,7 +293,7 @@ const changePassword = asyncHandler(async (req, res) => {
     where: { id: user.id },
     data: { password: encryptedPassword },
   });
-  res.status(200).json(new ApiResponse(200, {}, "Password changed success!"));
+  res.status(200).json(new ApiResponse(200, {}, "Password changed successfully!"));
 });
 
 export {

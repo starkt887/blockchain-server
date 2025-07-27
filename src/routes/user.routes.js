@@ -18,16 +18,17 @@ router.route("/register").post(attachRoleToRequest(ROLES.USER), registerUser);
 router.route("/login").post(loginUser);
 
 //secured routes
-
+//logout
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/refresh-tokens").post(refreshAccessToken);
-router.route("/change-password").post(changePassword);
-//update profile
 
-//admin routes
-//get all users
+//change password
+router.route("/change-password").post(verifyJWT,changePassword);
+
 //get single user data
 router.route("/get-profile").get(verifyJWT, getProfile);
+
+//update profile
 router.route("/update-profile").post(
   verifyJWT,
   upload.fields([
@@ -39,4 +40,7 @@ router.route("/update-profile").post(
   updateProfile
 );
 
+
+//admin routes
+//get all users
 export default router;

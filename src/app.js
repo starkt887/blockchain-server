@@ -16,10 +16,12 @@ app.use(cookieParser());
 //import routes
 import userRoutes from "./routes/user.routes.js";
 import contractRoutes from "./routes/contract.routes.js"
+import userSettingsRoutes from "./routes/userSettings.routes.js"
 import { asyncHandler } from "./utils/asyncHandler.js";
 import { errorHandler } from "./middleware/errorHandler.middleware.js";
 //initialize routes
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/userSettings",userSettingsRoutes)
 app.use("/api/v1/contract",contractRoutes)
 
 //global error handler middleware

@@ -1,5 +1,8 @@
 import { ethers } from "ethers";
-import { certificationContractABI, contractABI } from "./contract/contractABI.js";
+import {
+  certificationContractABI,
+  contractABI,
+} from "./contract/contractABI.js";
 
 export const PORT = process.env.PORT || 8000;
 export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
@@ -22,3 +25,11 @@ export const CONTRACT = new ethers.Contract(
   CONTRACT_ABI,
   WALLET
 );
+
+export const STATUS = {
+  APPROVED: "APPROVED",
+  PENDING: "PENDING",
+  REJECTED: "REJECTED",
+};
+
+export const ROWS_LIMIT=10
