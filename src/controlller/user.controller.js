@@ -132,6 +132,7 @@ const loginUser = asyncHandler(async (req, res) => {
           accessToken,
           refreshToken,
           id: updateUser.id,
+          smcAddress: updateUser.smcAddress,
         },
         "Login successful!"
       )
@@ -144,7 +145,7 @@ const getProfile = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const user = await DB.user.findUnique({
     where: { id: userId },
-    omit: { refreshToken: true, password: true },
+    omit: { refreshToken: true, password: true, quotations: true },
   });
   if (!user) {
     throw new ApiError(401, "Unable to find user profile!");
@@ -154,8 +155,17 @@ const getProfile = asyncHandler(async (req, res) => {
 });
 
 const updateProfile = asyncHandler(async (req, res) => {
-  const { name, company, country, countryCode, city, state, zipcode, mobile } =
-    req.body;
+  const {
+    name,
+    company,
+    country,
+    countryCode,
+    city,
+    state,
+    zipcode,
+    mobile,
+    smcAddress,
+  } = req.body;
   console.log(req.body);
 
   const userId = req.user.id;
@@ -169,6 +179,7 @@ const updateProfile = asyncHandler(async (req, res) => {
       state,
       mobile,
       countryCode,
+      smcAddress,
     ])
   ) {
     throw new ApiError(400, "All fields are required!");
@@ -197,6 +208,7 @@ const updateProfile = asyncHandler(async (req, res) => {
       state: state,
       mobile: mobile,
       zipcode: zipcode,
+      smcAddress: smcAddress,
     },
     where: { id: userId },
     omit: { password: true, refreshToken: true },
@@ -293,7 +305,9 @@ const changePassword = asyncHandler(async (req, res) => {
     where: { id: user.id },
     data: { password: encryptedPassword },
   });
-  res.status(200).json(new ApiResponse(200, {}, "Password changed successfully!"));
+  res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password changed successfully!"));
 });
 
 export {

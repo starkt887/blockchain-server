@@ -5,6 +5,7 @@ import {
   REFRESH_TOKEN_SECRET,
   REFRESH_TOKEN_SECRET_EXPIRY,
 } from "../constants.js";
+import ApiError from "./ApiError.js";
 const generateAccessToken = (data) => {
   return jwt.sign(data, ACCESS_TOKEN_SECRET, {
     expiresIn: ACCESS_TOKEN_SECRET_EXPIRY,
@@ -17,7 +18,12 @@ const generateRefreshToken = (data) => {
   });
 };
 const decodeAccessToken = (token) => {
-  return jwt.verify(token, ACCESS_TOKEN_SECRET);
+  return jwt.verify(token, ACCESS_TOKEN_SECRET, function (error, decoded) {
+    if (error) {
+      throw new ApiError(401, "Session expired. Please login again!");
+    }
+    return decoded;
+  });
 };
 const decodeRefreshToken = (token) => {
   return jwt.verify(token, REFRESH_TOKEN_SECRET);
@@ -31,4 +37,9 @@ const decodeRefreshToken = (token) => {
 // const dataToEncryptInRefreshToken = {
 //   id: 123,
 // };
-export { generateAccessToken, generateRefreshToken, decodeAccessToken,decodeRefreshToken };
+export {
+  generateAccessToken,
+  generateRefreshToken,
+  decodeAccessToken,
+  decodeRefreshToken,
+};

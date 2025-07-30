@@ -1,5 +1,11 @@
 import express from "express";
-import { getValue, setValue } from "../controlller/contract.controller.js";
+import {
+  generatecertificates,
+  getValue,
+  setValue,
+} from "../controlller/contract.controller.js";
+import { verifyApiKeys } from "../middleware/authApiKeys.middleware.js";
+import { verifyJWT } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -8,6 +14,10 @@ router.route("/getValue").get(getValue);
 
 // Example write function
 router.route("/setValue").post(setValue);
+
+router
+  .route("/generateCertificate")
+  .post(verifyJWT, verifyApiKeys, generatecertificates);
 
 //get my requests
 //generate certificate request

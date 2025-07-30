@@ -29,6 +29,12 @@ contract Certificationv1 is ERC721URIStorage, ERC721Holder {
         uint256 indexed tokenid,
         string data
     );
+     event MintCertificateBulkEvent(
+        uint256 date,
+        address indexed from,
+        address indexed owner,
+        Token_structure[] tokens
+    );
     event DataUriSetEvent(
         uint256 date,
         address indexed from,
@@ -93,7 +99,7 @@ contract Certificationv1 is ERC721URIStorage, ERC721Holder {
         //require(msg.sender==Admin,"Admin can only approve the token");
         //approve(address(this), newItemId);//give approval to contract to transfer this token to other
 
-        token_List[newItemId].tokenCreator = Admin;
+        token_List[newItemId].tokenCreator = msg.sender;
         token_List[newItemId].tokenID = newItemId;
         token_List[newItemId].data = tkuri;
         approve(address(this), newItemId);
@@ -106,6 +112,35 @@ contract Certificationv1 is ERC721URIStorage, ERC721Holder {
             to,
             newItemId,
             tkuri
+        );
+    }
+
+    function mint_nemwNFT_bulk(address to, string[] memory tkuri) external {
+        Token_structure[] memory tokens=new Token_structure[](tkuri.length);
+        for (uint256 i = 0; i < tkuri.length; i++) 
+        {
+             _tokenIds.increment();
+        uint256 newItemId = _tokenIds.current();
+        _mint(msg.sender, newItemId); //msg.sender is the factory contract instance adddress
+        _setTokenURI(newItemId, tkuri[i]);
+        tokens[i]=Token_structure(msg.sender,newItemId,tkuri[i]);
+        //require(msg.sender==Admin,"Admin can only approve the token");
+        //approve(address(this), newItemId);//give approval to contract to transfer this token to other
+
+        token_List[newItemId].tokenCreator = msg.sender;
+        token_List[newItemId].tokenID = newItemId;
+        token_List[newItemId].data = tkuri[i];
+        approve(address(this), newItemId);
+        if (address(to) != address(0)) {
+            safeTransferFrom(msg.sender, to, newItemId);
+        }
+        }
+       
+        emit MintCertificateBulkEvent(
+            block.timestamp,      
+            msg.sender,
+            to,
+            tokens
         );
     }
 

@@ -32,4 +32,7 @@ export const STATUS = {
   REJECTED: "REJECTED",
 };
 
-export const ROWS_LIMIT=10
+export const ROWS_LIMIT = 10;
+export const COMPANY_TITLE = process.env.COMPANY_TITLE;
+export const AMOY_POLYSCAN_LINK = process.env.AMOY_POLYSCAN_LINK;
+export const POLYSCAN_LINK = process.env.POLYSCAN_LINK;
