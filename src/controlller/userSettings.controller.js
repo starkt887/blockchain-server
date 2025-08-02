@@ -182,11 +182,30 @@ const approveQuotationRequest = asyncHandler(async (req, res) => {
   if (validateEmptyFiealds([quotationRequestId, userId, status])) {
     throw new ApiError(400, "requestId or userId is missing!");
   }
-  const updatedRecord = await DB.quotations.update({
-    data: { status: status },
-    where: { id: quotationRequestId },
-  });
+  if (status === STATUS.REJECTED) {
+    const updatedRecord = await DB.quotations.update({
+      data: { status: status },
+      where: { id: quotationRequestId },
+    });
+    if (!updatedRecord) {
+      throw new ApiError(500, "Unable to update quotation");
+    }
+    res
+      .status(200)
+      .json(new ApiResponse(200, updatedRecord, "Quotation rejected!"));
+  }
+
   if (status === STATUS.APPROVED) {
+    const updatedRecord = await DB.quotations.update({
+      data: { status: status, quotation: { increment: quotationAmt } },
+      where: { id: quotationRequestId },
+    });
+    if (!updatedRecord) {
+      throw new ApiError(500, "Unable to update quotation");
+    }
+    res
+      .status(200)
+      .json(new ApiResponse(200, updatedRecord, "Quotation approved!"));
   }
 });
 export {
@@ -195,4 +214,5 @@ export {
   getMyApiKeys,
   addAPIKeys,
   toggleAPIKeys,
+  approveQuotationRequest
 };

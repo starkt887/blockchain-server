@@ -2,6 +2,7 @@ import { Router } from "express";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 import {
   addAPIKeys,
+  approveQuotationRequest,
   getMyApiKeys,
   getMyQuotationRequests,
   quotationRequest,
@@ -19,5 +20,7 @@ router
 router.route("/add-apikeys").post(verifyJWT, addAPIKeys);
 router.route("/getMyApiKeys").get(verifyJWT, getMyApiKeys);
 router.route("/toggleApiKeys").post(verifyJWT, toggleAPIKeys);
+//admin
+router.route("/ack-quotation-request").post(verifyJWT, approveQuotationRequest);
 
 export default router;

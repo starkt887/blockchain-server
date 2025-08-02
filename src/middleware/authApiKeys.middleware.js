@@ -17,15 +17,16 @@ export const verifyApiKeys = asyncHandler(async (req, res, next) => {
     const userApiKeys = await DB.apiKeys.findFirst({
       where: { AND: [{ userId: user.id }, { apiKey: apiKey }] },
     });
+     if (!userApiKeys) {
+      throw new ApiError(401, "Invalid API key");
+    }
     if (!userApiKeys.enabled) {
       throw new ApiError(
         401,
         "API key disabled. Please enable and request again!"
       );
     }
-    if (!userApiKeys) {
-      throw new ApiError(401, "Invalid API key");
-    }
+   
     if (!isApiSecretCorrect(userApiKeys.apiSecret, apiSecret)) {
       throw new ApiError(401, "Invalid API secret");
     }
