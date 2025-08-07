@@ -50,6 +50,7 @@ const registerUser = asyncHandler(async (req, res) => {
       country: country,
       countryCode: countryCode,
       password: encryptedPassword,
+      enabled:true,//should be based on email verification
       role: {
         connect: { id: req.role.id },
       },
@@ -97,6 +98,9 @@ const loginUser = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(404, "User doesn't exists!");
   }
+  if (!user.enabled) {
+    throw new ApiError(401, "Your account is not activated!");
+  }
   const isPasswordValid = await isPasswordCorrect(password, user.password);
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid user credentials!");
@@ -109,12 +113,19 @@ const loginUser = asyncHandler(async (req, res) => {
     name: user.name,
   });
   const refreshToken = generateRefreshToken({ id: user.id });
-  const updateUser = await DB.user.update({
+  const refreshTokenUpdatedUser = await DB.user.update({
     data: {
       refreshToken,
     },
     where: { id: user.id },
     omit: { refreshToken, password },
+  });
+  if (!refreshTokenUpdatedUser) {
+    throw new ApiError(400, "Unable to start sessions!");
+  }
+  const updateUser = await DB.user.findUnique({
+    where: { id: user.id },
+    include: { role: true },
   });
 
   const options = {
@@ -133,6 +144,7 @@ const loginUser = asyncHandler(async (req, res) => {
           refreshToken,
           id: updateUser.id,
           smcAddress: updateUser.smcAddress,
+          role: updateUser.role,
         },
         "Login successful!"
       )

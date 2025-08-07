@@ -56,9 +56,10 @@ model User {
   role                Roles                 @relation(fields: [roleId], references: [id])
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
-  quotations          BigInt                @default(0)
+  quotations          Int                   @default(0)
   Quotations          Quotations[]
   ApiKeys             ApiKeys[]
+  enabled             Boolean @default(false)
 }
 
 model TransactionRequests {

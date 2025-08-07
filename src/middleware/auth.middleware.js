@@ -14,14 +14,10 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
       throw new ApiError(401, "Unauthorized request");
     }
     console.log(token);
-    try {
-      
-    } catch (error) {
-      
-    }
     const decodedToken = decodeAccessToken(token);
     const user = await DB.user.findUnique({
       where: { id: decodedToken.id },
+      include:{role:true},
       omit: { password: true, refreshToken: true },
     });
 
