@@ -74,9 +74,16 @@ const generatecertificates = asyncHandler(async (req, res) => {
 
       const { date, from, owner, tokens } = event.args;
       console.log("Event Data:", { date, from, owner, tokens });
-      const validateChainURLS = tokens.map((token) => {
-        return `${AMOY_POLYSCAN_LINK}${token.tokenID.toString()}`;
+      const blockchainResponse = tokens.map((token) => {
+        return {
+          certificationId: token.tokenID.toString(),
+          certificateOwner: token.tokenCreator.toString(),
+          certificateData: token.data.toString(),
+          blockchainValidationURL: `${AMOY_POLYSCAN_LINK}${token.tokenID.toString()}`,
+          tampfyValidationURL: "yet to build",
+        };
       });
+
       res.status(200).json(
         new ApiResponse(
           200,
@@ -84,11 +91,9 @@ const generatecertificates = asyncHandler(async (req, res) => {
             date: date.toString(),
             from,
             owner,
-            tokens: tokens,
+            certifications: blockchainResponse,
             // data: JSON.parse(data),
             transactionHash: tx.hash,
-            validateChainURL: validateChainURLS,
-            validationURL: "yet to build",
           },
           "Certification Created Successfully!"
         )
