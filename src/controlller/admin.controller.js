@@ -56,44 +56,27 @@ const searchUsersByIDorCompanyName = asyncHandler(async (req, res) => {
     throw new ApiError(401, "No User role found!");
   }
   const skip = (page - 1) * ROWS_LIMIT;
+  let whereClause = {};
+  let responseMsg = "";
   if (!query) {
-    const totalUsersMatchingQuery = await DB.user.findMany({
-      where: {
-        roleId: roleDetails.id,
-      },
-      omit: { password: true, refreshToken: true },
-    });
-    const users = await DB.user.findMany({
-      skip: skip,
-      take: ROWS_LIMIT,
-      where: {
-        roleId: roleDetails.id,
-      },
-      omit: { password: true, refreshToken: true },
-    });
-    res
-      .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          { users, totalUserCount: totalUsersMatchingQuery.length },
-          "Search complete!"
-        )
-      );
-    return;
+    //normal data fetch
+    whereClause = { roleId: roleDetails.id };
+    responseMsg = "Fetched Company Data!";
+  } else {
+    //filtered data fetch
+    let searchConditions = [
+      { company: { startsWith: query, mode: "insensitive" } },
+    ];
+    if (ObjectId.isValid(query)) {
+      searchConditions.push({ id: query });
+    }
+    whereClause = { OR: searchConditions, AND: { roleId: roleDetails.id } };
+    responseMsg = "Search complete!";
   }
   console.log("ID valid:", ObjectId.isValid(query));
-  let searchConditions = [
-    { company: { startsWith: query, mode: "insensitive" } },
-  ];
-  if (ObjectId.isValid(query)) {
-    searchConditions.push({ id: query });
-  }
 
   const totalUsersMatchingQuery = await DB.user.findMany({
-    where: {
-      OR: searchConditions,
-    },
+    where: whereClause,
     omit: { password: true, refreshToken: true },
   });
   console.log("totalUsers:", totalUsersMatchingQuery.length);
@@ -101,9 +84,7 @@ const searchUsersByIDorCompanyName = asyncHandler(async (req, res) => {
   const users = await DB.user.findMany({
     skip: skip,
     take: ROWS_LIMIT,
-    where: {
-      OR: searchConditions,
-    },
+    where: whereClause,
     omit: { password: true, refreshToken: true },
   });
   if (!users) {
@@ -115,7 +96,7 @@ const searchUsersByIDorCompanyName = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         { users, totalUserCount: totalUsersMatchingQuery.length },
-        "Search complete!"
+        responseMsg
       )
     );
 });
