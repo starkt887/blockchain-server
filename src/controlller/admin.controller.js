@@ -4,6 +4,7 @@ import DB from "../db/index.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import req from "express/lib/request.js";
 
 const getAllCompanies = asyncHandler(async (req, res) => {
   //verify jwt
@@ -101,4 +102,30 @@ const searchUsersByIDorCompanyName = asyncHandler(async (req, res) => {
     );
 });
 
-export { getAllCompanies, searchUsersByIDorCompanyName };
+const getCompanyProfileById = asyncHandler(async (req, res) => {
+  const { profileId } = req.params;
+  console.log("Profile ID:",profileId);
+  
+  if (!profileId) {
+    throw new ApiError(401, "Profile ID is missing!");
+  }
+
+  const companyProfile = await DB.user.findFirst({
+    where: { id: profileId },
+    omit: { password: true, refreshToken: true },
+  });
+  if (!companyProfile) {
+    throw new ApiError(401, "Company Profile not found!");
+  }
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        companyProfile,
+        `Fetched ${companyProfile.company} Profile!`
+      )
+    );
+});
+
+export { getAllCompanies, searchUsersByIDorCompanyName,getCompanyProfileById };
