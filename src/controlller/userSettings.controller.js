@@ -6,23 +6,8 @@ import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { validateEmptyFiealds, validateIsNumber } from "../utils/validate.js";
 import { encryptApiSecret, encryptPassword } from "../utils/PasswordHandler.js";
+import { fetchQuotations } from "../db/utils/quotations.js";
 
-const fetchQuotations = async (userId, page = 1) => {
-  const skip = (page - 1) * ROWS_LIMIT;
-  const totalQuotations = await DB.quotations.count({
-    where: { userId: userId },
-  });
-  const quotationRequests = await DB.quotations.findMany({
-    skip,
-    take: ROWS_LIMIT,
-    orderBy: {
-      createdAt: "desc",
-    },
-    where: { userId: userId },
-    omit: { userId: true, updatedAt: true },
-  });
-  return { quotationRequests, totalQuotations };
-};
 
 const getMyQuotationRequests = asyncHandler(async (req, res) => {
   //get page no
