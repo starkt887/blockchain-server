@@ -3,8 +3,10 @@ import { verifyJWT } from "../middleware/auth.middleware.js";
 import {
   getAllCompanies,
   getCompanyProfileById,
+  getQuotationsById,
   searchUsersByIDorCompanyName,
   updateProfileAsAdmin,
+  updateQuotationRequests,
 } from "../controlller/admin.controller.js";
 import { isAdmin } from "../middleware/isAdmin.middleware.js";
 
@@ -22,8 +24,16 @@ router
 router
   .route("/get-profile-byid/:profileId")
   .get(verifyJWT, isAdmin, getCompanyProfileById);
+//get quotations
+router
+  .route("/get-quotations-byid")
+  .post(verifyJWT, isAdmin, getQuotationsById);
 //get all requests
 //update requets
 router.route("/update-profile-as-admin").post(verifyJWT,isAdmin,updateProfileAsAdmin)
 //approve quotation requests
+//approve/reject quotation requests
+router
+  .route("/updateQuotationRequests")
+  .post(verifyJWT, isAdmin, updateQuotationRequests);
 export default router;

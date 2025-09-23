@@ -1,11 +1,12 @@
 import { ObjectId } from "bson";
-import { ROLES, ROWS_LIMIT } from "../constants.js";
+import { ROLES, ROWS_LIMIT, STATUS } from "../constants.js";
 import DB from "../db/index.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import req from "express/lib/request.js";
 import { validateEmptyFiealds } from "../utils/validate.js";
+import { fetchQuotations } from "../db/utils/quotations.js";
 
 const getAllCompanies = asyncHandler(async (req, res) => {
   //verify jwt
@@ -105,8 +106,8 @@ const searchUsersByIDorCompanyName = asyncHandler(async (req, res) => {
 
 const getCompanyProfileById = asyncHandler(async (req, res) => {
   const { profileId } = req.params;
-  console.log("Profile ID:",profileId);
-  
+  console.log("Profile ID:", profileId);
+
   if (!profileId) {
     throw new ApiError(401, "Profile ID is missing!");
   }
@@ -197,30 +198,84 @@ const updateProfileAsAdmin = asyncHandler(async (req, res) => {
 });
 
 
-const getMyQuotationRequests = asyncHandler(async (req, res) => {
-  //get page no
-  //get the user
-  //get quotations
-  //   console.log(req.params);
 
-  const { page } = req.params;
+const getQuotationsById = asyncHandler(async (req, res) => {
+  const { profileId, page } = req.query;
+  console.log("Profile ID-Page:", profileId, page);
 
-  console.log(page);
-
-  if (!validateIsNumber(page)) {
-    throw new ApiError(400, "Invalid page no!");
+  if (!profileId) {
+    throw new ApiError(401, "Profile ID is missing!");
   }
-  const user = req.user;
-  const quotations = await fetchQuotations(user.id, page);
+
+  const quotations = await fetchQuotations(profileId, page);
+  if (!quotations) {
+    throw new ApiError(401, "Quotations not found!");
+  }
+  res
+    .status(200)
+    .json(new ApiResponse(200, { ...quotations }, `Fetched Quotations!`));
+});
+
+const updateQuotationRequests = asyncHandler(async (req, res) => {
+  const { profileId, quotationId, status } = req.body;
+  if (!profileId) {
+    throw new ApiError(401, "Profile id is missing!");
+  }
+  if (!quotationId) {
+    throw new ApiError(400, "Quotation id is missing!");
+  }
+  if (!status) {
+    throw new ApiError(400, "Status is missing!");
+  }
+  const quoteRequest = await DB.quotations.findFirst({
+    where: { id: quotationId },
+  });
+  if (!quoteRequest) {
+    throw new ApiError(500, "Unable to find quotation request");
+  }
+  if (status.toUpperCase() === STATUS.APPROVED) {
+    const addQuotations = await DB.user.update({
+      data: {
+        quotations: {
+          increment: quoteRequest.quotation,
+        },
+      },
+      where: { id: profileId },
+    });
+    if (!addQuotations) {
+      throw new ApiError(500, "Unable to update quotations");
+    }
+  }
+
+  const updatedQuotationRecord = await DB.quotations.update({
+    data: {
+      status:
+        status.toUpperCase() === STATUS.APPROVED
+          ? STATUS.APPROVED
+          : STATUS.REJECTED,
+    },
+    where: { id: quotationId },
+  });
+  console.log(updatedQuotationRecord);
+  if (!updatedQuotationRecord) {
+    throw new ApiError(401, "Unable to update the status");
+  }
   res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        { ...quotations },
-        "Loaded all your quotation requests!"
+        {},
+        `Quotation request of ${quoteRequest.quotation} has ${status} successfully!`
       )
     );
 });
 
-export { getAllCompanies, searchUsersByIDorCompanyName,getCompanyProfileById,updateProfileAsAdmin };
+export {
+  getAllCompanies,
+  searchUsersByIDorCompanyName,
+  getCompanyProfileById,
+  getQuotationsById,
+  updateQuotationRequests,
+  updateProfileAsAdmin
+};
