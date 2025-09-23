@@ -4,6 +4,7 @@ import {
   getAllCompanies,
   getCompanyProfileById,
   searchUsersByIDorCompanyName,
+  updateProfileAsAdmin,
 } from "../controlller/admin.controller.js";
 import { isAdmin } from "../middleware/isAdmin.middleware.js";
 
@@ -23,5 +24,6 @@ router
   .get(verifyJWT, isAdmin, getCompanyProfileById);
 //get all requests
 //update requets
+router.route("/update-profile-as-admin").post(verifyJWT,isAdmin,updateProfileAsAdmin)
 //approve quotation requests
 export default router;
